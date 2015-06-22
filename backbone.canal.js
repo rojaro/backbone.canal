@@ -5,8 +5,6 @@
  */
 (function () {
 
-  "use strict";
-
   // Alias libraries
   var root = this;
   var _ = root._;
@@ -24,6 +22,15 @@
   var plusPattern = /\+/g;
   var r20Pattern = /%20/g;
   var escapeRegExp  = /[\-{}\[\]+?.,\\\^$|#\s]/g;
+
+  // Helper functions
+  // ----------------
+  var getQueryString = function (url) {
+    var query = url.match(queryStringPattern);
+    if (query) {
+      return query[0];
+    }
+  };
 
   // Backbone.Canal
   // --------------
@@ -133,7 +140,8 @@
       return this;
     },
 
-    url: function (name, params) {
+    _checkParameterOnRoute: function(name, params){
+
       params = params || {};
 
       // Determine the best match for this route with the passed params
@@ -144,6 +152,14 @@
         var diff = _.difference(names, keys);
         return !diff.length;
       });
+
+      return route;
+
+    },
+
+    url: function (name, params) {
+
+      var route = this._checkParameterOnRoute(name, params);
 
       // If we have a matching route, build the URL for it
       if (route) {
@@ -289,8 +305,12 @@
 
           // Optional parameters that don't exist on the params hash should
           // be removed
+          // if (!_.isString(value)) {
+          //   value = '';
+
+          // }
           if (!_.isString(value)) {
-            value = '';
+            value = value || '';
           }
           // Add any leading characters stripped out of optional parts
           else {
@@ -308,10 +328,10 @@
       });
 
       // Add any extra items as query parameters to url
-      var query = Canal.options.param(params);
-      if (query) {
-        url += '?' + query;
-      }
+      // var query = Canal.options.param(params);
+      // if (query) {
+      //   url += '?' + query;
+      // }
 
       return url;
     }
@@ -361,14 +381,5 @@
     }
 
   });
-
-  // Helper functions
-  // ----------------
-  var getQueryString = function (url) {
-    var query = url.match(queryStringPattern);
-    if (query) {
-      return query[0];
-    }
-  };
 
 }).call(this);
